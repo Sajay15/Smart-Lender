@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Smart Lender – AI-Powered Loan Prediction</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}"/>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Space+Grotesk:wght@500;700&display=swap" rel="stylesheet"/>
+</head>
+<body>
+
+  <!-- NAV -->
+  <nav class="navbar">
+    <div class="nav-inner">
+      <a href="/" class="logo">
+        <span class="logo-icon">⬡</span>
+        <span class="logo-text">Smart<strong>Lender</strong></span>
+      </a>
+      <ul class="nav-links">
+        <li><a href="/" class="active">Home</a></li>
+        <li><a href="/predict">Predict</a></li>
+        <li><a href="/train">Train Model</a></li>
+      </ul>
+    </div>
+  </nav>
+
+  <!-- HERO -->
+  <section class="hero">
+    <div class="hero-content">
+      <div class="hero-badge">Machine Learning · Flask · XGBoost</div>
+      <h1 class="hero-title">Credit decisions<br/><span class="accent">powered by AI</span></h1>
+      <p class="hero-sub">Smart Lender evaluates loan applications in real time using four classification models — Decision Tree, Random Forest, KNN, and XGBoost — delivering 81.1% test accuracy.</p>
+      <div class="hero-cta">
+        <a href="/predict" class="btn-primary">Predict Eligibility →</a>
+        <a href="/train" class="btn-secondary">Train Models</a>
+      </div>
+    </div>
+    <div class="hero-visual">
+      <div class="stat-grid">
+        <div class="stat-card"><span class="stat-num">94.7<span class="stat-unit">%</span></span><span class="stat-label">Training Accuracy</span></div>
+        <div class="stat-card"><span class="stat-num">81.1<span class="stat-unit">%</span></span><span class="stat-label">Testing Accuracy</span></div>
+        <div class="stat-card"><span class="stat-num">4</span><span class="stat-label">ML Models</span></div>
+        <div class="stat-card"><span class="stat-num">11</span><span class="stat-label">Input Features</span></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- HOW IT WORKS -->
+  <section class="section">
+    <div class="container">
+      <h2 class="section-title">How Smart Lender Works</h2>
+      <p class="section-sub">An end-to-end ML pipeline from raw applicant data to instant eligibility prediction.</p>
+      <div class="steps">
+        <div class="step">
+          <div class="step-icon">📥</div>
+          <h3>Data Ingestion</h3>
+          <p>Structured applicant data — income, credit history, loan details — is loaded and validated.</p>
+        </div>
+        <div class="step-arrow">→</div>
+        <div class="step">
+          <div class="step-icon">🔧</div>
+          <h3>Preprocessing</h3>
+          <p>Missing values filled, categorical features encoded, dataset balanced for training.</p>
+        </div>
+        <div class="step-arrow">→</div>
+        <div class="step">
+          <div class="step-icon">🤖</div>
+          <h3>Model Training</h3>
+          <p>Four classifiers trained and benchmarked; best model (XGBoost) saved for deployment.</p>
+        </div>
+        <div class="step-arrow">→</div>
+        <div class="step">
+          <div class="step-icon">⚡</div>
+          <h3>Real-Time Prediction</h3>
+          <p>Flask API serves predictions instantly from the saved XGBoost model.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- SCENARIOS -->
+  <section class="section section-dark">
+    <div class="container">
+      <h2 class="section-title">Real-World Use Cases</h2>
+      <div class="cards">
+        <div class="card card-green">
+          <div class="card-tag">Scenario 01</div>
+          <h3>Fast-Track Approval</h3>
+          <p>A salaried applicant with good credit history is instantly approved, letting credit officers skip manual review entirely.</p>
+        </div>
+        <div class="card card-red">
+          <div class="card-tag">Scenario 02</div>
+          <h3>High-Risk Detection</h3>
+          <p>Irregular self-employment income and no credit history triggers a high-risk flag, prompting deeper scrutiny before proceeding.</p>
+        </div>
+        <div class="card card-blue">
+          <div class="card-tag">Scenario 03</div>
+          <h3>Batch Evaluation</h3>
+          <p>Financial analysts use the platform to evaluate hundreds of applications during peak periods without sacrificing accuracy.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- MODELS -->
+  <section class="section">
+    <div class="container">
+      <h2 class="section-title">Classification Models</h2>
+      <div class="model-table-wrap">
+        <table class="model-table">
+          <thead>
+            <tr>
+              <th>Model</th>
+              <th>Train Accuracy</th>
+              <th>Test Accuracy</th>
+              <th>Status</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr><td>Decision Tree</td><td>~88%</td><td>~76%</td><td><span class="badge">Trained</span></td></tr>
+            <tr><td>Random Forest</td><td>~92%</td><td>~79%</td><td><span class="badge">Trained</span></td></tr>
+            <tr><td>KNN</td><td>~83%</td><td>~74%</td><td><span class="badge">Trained</span></td></tr>
+            <tr class="best-row"><td>XGBoost ⭐</td><td>94.7%</td><td>81.1%</td><td><span class="badge badge-best">Deployed</span></td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+
+  <!-- FOOTER -->
+  <footer class="footer">
+    <div class="container">
+      <span class="logo-text">Smart<strong>Lender</strong></span>
+      <p>Built with Python · Flask · Scikit-learn · XGBoost · IBM Cloud Ready</p>
+    </div>
+  </footer>
+
+</body>
+</html>

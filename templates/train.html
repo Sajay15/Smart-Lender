@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Train Models – Smart Lender</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}"/>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Space+Grotesk:wght@500;700&display=swap" rel="stylesheet"/>
+</head>
+<body>
+
+  <nav class="navbar">
+    <div class="nav-inner">
+      <a href="/" class="logo">
+        <span class="logo-icon">⬡</span>
+        <span class="logo-text">Smart<strong>Lender</strong></span>
+      </a>
+      <ul class="nav-links">
+        <li><a href="/">Home</a></li>
+        <li><a href="/predict">Predict</a></li>
+        <li><a href="/train" class="active">Train Model</a></li>
+      </ul>
+    </div>
+  </nav>
+
+  <main class="train-main">
+    <div class="container">
+      <div class="train-header">
+        <h1>Model Training Pipeline</h1>
+        <p>Runs the full ML pipeline: data preprocessing → EDA → model training → evaluation → save best model.</p>
+      </div>
+
+      <div class="train-layout">
+        <div class="train-panel">
+          <h3>Pipeline Steps</h3>
+          <ul class="pipeline-steps">
+            <li class="pipeline-step"><span class="ps-num">1</span><span>Load / generate loan dataset</span></li>
+            <li class="pipeline-step"><span class="ps-num">2</span><span>EDA visualizations (count plots, histograms, bar charts)</span></li>
+            <li class="pipeline-step"><span class="ps-num">3</span><span>Handle missing values & encode categoricals</span></li>
+            <li class="pipeline-step"><span class="ps-num">4</span><span>Train Decision Tree, Random Forest, KNN, XGBoost</span></li>
+            <li class="pipeline-step"><span class="ps-num">5</span><span>Evaluate & compare all models</span></li>
+            <li class="pipeline-step"><span class="ps-num">6</span><span>Save best model for deployment</span></li>
+          </ul>
+
+          <div class="train-note">
+            <strong>⚡ Note:</strong> Training takes 30–90 seconds depending on your hardware. Ensure all packages are installed first (<code>pip install -r requirements.txt</code>).
+          </div>
+
+          <button class="btn-primary btn-train" id="train-btn" onclick="trainModel()">
+            Start Training Pipeline
+          </button>
+        </div>
+
+        <div class="train-output-panel">
+          <div class="output-header">
+            <span>Training Output</span>
+            <span id="train-status-badge" class="status-badge status-idle">Idle</span>
+          </div>
+          <div class="output-log" id="output-log">
+            <span class="log-placeholder">Training output will appear here…</span>
+          </div>
+
+          <div class="viz-section hidden" id="viz-section">
+            <h3>Generated Visualizations</h3>
+            <div class="viz-grid">
+              <div class="viz-item">
+                <p class="viz-label">Exploratory Data Analysis</p>
+                <img src="/static/images/eda_plots.png" alt="EDA Plots" onerror="this.style.display='none'"/>
+              </div>
+              <div class="viz-item">
+                <p class="viz-label">Model Accuracy Comparison</p>
+                <img src="/static/images/model_comparison.png" alt="Model Comparison" onerror="this.style.display='none'"/>
+              </div>
+              <div class="viz-item">
+                <p class="viz-label">Confusion Matrix (Best Model)</p>
+                <img src="/static/images/confusion_matrix.png" alt="Confusion Matrix" onerror="this.style.display='none'"/>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </main>
+
+  <footer class="footer">
+    <div class="container">
+      <span class="logo-text">Smart<strong>Lender</strong></span>
+      <p>Built with Python · Flask · Scikit-learn · XGBoost</p>
+    </div>
+  </footer>
+
+  <script src="{{ url_for('static', filename='js/train.js') }}"></script>
+</body>
+</html>
