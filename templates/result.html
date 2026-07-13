@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Smart Lender: Underwriting Decision</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+
+    <header>
+        <div class="header-container">
+            <a href="/" class="logo">
+                <i class="fa-solid fa-scale-balanced"></i> SMART LENDER
+            </a>
+            <span class="logo-sub">Loan Eligibility Underwriting Assistant</span>
+        </div>
+    </header>
+
+    <div class="main-container">
+        
+        <div class="result-card {{ color }}">
+            
+            {% if result == 'APPROVED' %}
+                <div class="result-iconApproved result-icon" style="color: var(--success-color);">
+                    <i class="fa-solid fa-circle-check"></i>
+                </div>
+                <div class="result-badge approved">Approved</div>
+                <p class="result-desc">Based on the machine learning underwriting rules, the applicant demonstrates high creditworthiness. The loan application is approved with <strong>{{ details.prob_approved }}%</strong> probability of repayment viability.</p>
+            {% else %}
+                <div class="result-iconRejected result-icon" style="color: var(--error-color);">
+                    <i class="fa-solid fa-circle-xmark"></i>
+                </div>
+                <div class="result-badge rejected">Rejected</div>
+                <p class="result-desc">The applicant credibility score falls below safe risk thresholds. The loan application is rejected with <strong>{{ details.prob_rejected }}%</strong> risk of repayment default.</p>
+            {% endif %}
+
+            <h3 style="text-align: left; font-size:1.1rem; margin-bottom:1rem; border-bottom:1px solid var(--border-color); padding-bottom:0.5rem; color:var(--text-primary);">
+                <i class="fa-solid fa-sliders"></i> Submitted Applicant Parameters
+            </h3>
+
+            <div class="result-grid">
+                
+                <div class="result-item">
+                    <div class="result-item-label">Gender</div>
+                    <div class="result-item-val">{{ details.gender }}</div>
+                </div>
+
+                <div class="result-item">
+                    <div class="result-item-label">Marital Status</div>
+                    <div class="result-item-val">{{ details.married }}</div>
+                </div>
+
+                <div class="result-item">
+                    <div class="result-item-label">Dependents</div>
+                    <div class="result-item-val">{{ details.dependents }}</div>
+                </div>
+
+                <div class="result-item">
+                    <div class="result-item-label">Education</div>
+                    <div class="result-item-val">{{ details.education }}</div>
+                </div>
+
+                <div class="result-item">
+                    <div class="result-item-label">Self Employed</div>
+                    <div class="result-item-val">{{ details.self_employed }}</div>
+                </div>
+
+                <div class="result-item">
+                    <div class="result-item-label">Monthly Income</div>
+                    <div class="result-item-val">{{ details.applicant_income }}</div>
+                </div>
+
+                <div class="result-item">
+                    <div class="result-item-label">Coapplicant Income</div>
+                    <div class="result-item-val">{{ details.coapplicant_income }}</div>
+                </div>
+
+                <div class="result-item">
+                    <div class="result-item-label">Requested Loan Amount</div>
+                    <div class="result-item-val">{{ details.loan_amount }}</div>
+                </div>
+
+                <div class="result-item">
+                    <div class="result-item-label">Repayment Term</div>
+                    <div class="result-item-val">{{ details.loan_amount_term }}</div>
+                </div>
+
+                <div class="result-item">
+                    <div class="result-item-label">Credit History Status</div>
+                    <div class="result-item-val">{{ details.credit_history }}</div>
+                </div>
+
+                <div class="result-item" style="grid-column: span 2;">
+                    <div class="result-item-label">Property Location Area</div>
+                    <div class="result-item-val">{{ details.property_area }}</div>
+                </div>
+
+            </div>
+
+            <a href="/" class="back-btn">
+                <i class="fa-solid fa-arrow-left"></i> Return to Underwriting Dashboard
+            </a>
+
+        </div>
+
+    </div>
+
+    <footer>
+        <p>&copy; 2026 Smart Lender Inc. All rights reserved. Deployed on secure Cloud Environment.</p>
+    </footer>
+
+</body>
+</html>

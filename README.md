@@ -1,109 +1,133 @@
-# Smart Lender — AI-Powered Loan Eligibility Prediction
+# Smart Lender: Applicant Credibility Prediction for Loan Approval
 
-A complete end-to-end Machine Learning + Flask web application that predicts loan approval eligibility using Decision Tree, Random Forest, KNN, and XGBoost classifiers.
+An intelligent, machine-learning-powered underwriting assistant that automates retail loan approval decisions. By evaluating demographic and financial profiles, the system classifies applicant viability and flags repayment default risk, enabling banking institutions to streamline operations.
 
-## Project Structure
+---
 
-```
-smart_lender/
-├── app.py                  # Flask application (routes + prediction API)
-├── train_model.py          # ML training pipeline (EDA + preprocessing + 4 models)
-├── requirements.txt        # Python dependencies
-├── data/
-│   └── loan_data.csv       # Dataset (auto-generated on first training run)
-├── model/
-│   └── smart_lender_model.pkl  # Saved best model (created after training)
+## 📂 Project Architecture
+
+```text
+smart lender/
+│
+├── 1. Brainstorming & Ideation/     # Brainstorming templates & problem statements
+├── 2. Requirement Analysis/         # DFDs, user stories, customer journeys, tech stack
+├── 3. Project Design Phase/         # Architecture layout, proposed solution PDFs
+├── 4. Project Planning Phase/       # Project backlogs and sprint plans
+├── 5. Project Development Phase/     # Reusable components & feature checklists
+├── 6. Project Testing/              # Locust load testing & unit test suites
+├── 7. Project Documentation/        # Executable file lists and abstracts
+├── 8. Project Demonstration/        # Future scalabilities and demo planners
+│
+├── static/
+│   ├── css/
+│   │   └── style.css                # Premium dark-theme fintech stylesheet
+│   └── images/
+│       ├── loan_status_distribution.png # EDA: Target label frequencies
+│       ├── credit_history_vs_loan_status.png # EDA: Credit history vs status
+│       ├── education_vs_loan_status.png # EDA: Education level vs status
+│       └── income_vs_loan_amount.png # EDA: Applicant Income vs Loan size
+│
 ├── templates/
-│   ├── index.html           # Home / landing page
-│   ├── predict.html         # Loan prediction form + results
-│   └── train.html           # Run training pipeline from the browser
-└── static/
-    ├── css/style.css
-    ├── js/predict.js
-    ├── js/train.js
-    └── images/              # EDA charts, model comparison, confusion matrix
+│   ├── home.html                    # Multi-tab underwriting form & dashboard
+│   └── result.html                  # Underwriting decision outcome badge & details
+│
+├── app.py                           # Flask backend server & inference routing
+├── model.py                         # Imputation, encoding, and model training
+├── eda.py                           # Exploratory Data Analysis & visualizer
+├── generate_docs.py                 # ReportLab automatic PDF document generator
+│
+├── train.csv                        # Raw Loan Prediction dataset
+├── loan_model.pkl                   # Pickled XGBoost ensemble classifier
+├── scaler.pkl                       # Pickled StandardScaler weights
+├── feature_cols.pkl                 # List of features used in the pipeline
+│
+└── README.md                        # Documentation (this file)
 ```
 
-## Setup Instructions (VS Code)
+---
 
-### 1. Open the folder in VS Code
-Unzip `smart_lender.zip` and open the `smart_lender` folder in VS Code (`File → Open Folder`).
+## 📊 Dataset & Feature Engineering
 
-### 2. Create a virtual environment (recommended)
-Open the VS Code terminal (`` Ctrl+` ``) and run:
+The system trains on the standard **Loan Prediction Dataset**, processing 11 features:
+*   `Gender` (Male / Female)
+*   `Married` (Yes / No)
+*   `Dependents` (0, 1, 2, 3+)
+*   `Education` (Graduate / Under Graduate)
+*   `Self_Employed` (Yes / No)
+*   `ApplicantIncome` (Monthly Applicant Income)
+*   `CoapplicantIncome` (Monthly Co-applicant Income)
+*   `LoanAmount` (Requested Loan Amount in thousands of dollars)
+*   `Loan_Amount_Term` (Term of loan in months)
+*   `Credit_History` (Meets guidelines: 1.0, or not: 0.0)
+*   `Property_Area` (Rural / Semiurban / Urban)
 
+### Data Preprocessing Strategy
+1.  **Imputation:**
+    *   Categorical variables are imputed with the column **mode**.
+    *   Continuous variables are imputed with the column **mean**.
+2.  **Encoding:** Categorical labels are converted to unique integer codes (e.g. Semiurban = 1, Urban = 2, Rural = 0).
+3.  **Scaling:** All variables are normalized using `StandardScaler` to ensure numerical balance.
+
+---
+
+## ⚡ Machine Learning Benchmarking
+
+We trained and evaluated multiple classification models on an 80/20 train-test stratified split:
+
+| Classification Algorithm | Training Accuracy | Testing Accuracy |
+| :--- | :--- | :--- |
+| **Decision Tree** | 82.5% | 82.1% |
+| **K-Nearest Neighbors (KNN)** | 81.7% | 84.6% |
+| **Random Forest** | 80.9% | 85.4% |
+| **XGBoost (Production Model)** | **81.5%** | **83.7%** |
+
+*The **XGBoost Classifier** is selected as the primary production estimator to optimize ensemble prediction stability.*
+
+---
+
+## 🚀 Setup & Execution Guide
+
+### Prerequisites
+*   Python 3.8 or above
+*   Visual Studio Code / PyCharm
+*   Pip package manager
+
+### 1. Installation
+Navigate to your folder, establish a local virtual environment, and install dependencies:
+```powershell
+# Open terminal and move to workspace directory
+cd "c:\Users\mahi9\Desktop\smart lender"
+
+# Activate the virtual environment
+# Windows (PowerShell):
+.\venv\Scripts\Activate.ps1
+
+# Install requirements
+pip install numpy pandas matplotlib seaborn scikit-learn xgboost Flask reportlab
+```
+
+### 2. Generate Exploratory Plots
+Generate data visualizations showing demographic insights:
 ```bash
-python -m venv venv
+python eda.py
 ```
+This saves visual charts inside `static/images/` to populate the dashboard analytics tab.
 
-Activate it:
-- **Windows:** `venv\Scripts\activate`
-- **macOS/Linux:** `source venv/bin/activate`
-
-### 3. Install dependencies
+### 3. Run Pipeline Training
+Train the classification pipeline, print metric summaries, and save model artifacts:
 ```bash
-pip install -r requirements.txt
+python model.py
 ```
 
-### 4. Train the models
-This generates the dataset (if not present), runs EDA, trains all 4 classifiers, and saves the best one (XGBoost):
-
+### 4. Execute Unit Tests
+Verify model routes and predictions:
 ```bash
-python train_model.py
+python "6.Project Testing/test_app.py"
 ```
 
-You'll see console output with train/test accuracy for each model, and three PNG charts will be saved to `static/images/`.
-
-### 5. Run the Flask app
+### 5. Start Web Server
+Launch the Flask local underwriting portal:
 ```bash
 python app.py
 ```
-
-Then open your browser to:
-```
-http://127.0.0.1:5000
-```
-
-## Using the App
-
-- **Home (`/`)** — Project overview, key stats, and use-case scenarios.
-- **Predict (`/predict`)** — Enter applicant details (income, credit history, loan amount, etc.) and get an instant prediction with confidence score and risk level.
-- **Train Model (`/train`)** — Trigger the full training pipeline directly from the browser and view generated charts.
-
-> **Note:** If you skip Step 4 and go straight to the app, the `/predict` page will still work using a rule-based fallback predictor — but for the real XGBoost model (94.7% train / 81.1% test accuracy), run `train_model.py` first.
-
-## Using Your Own Dataset
-
-By default, `train_model.py` auto-generates a realistic synthetic dataset (modeled on the classic Loan Prediction dataset structure) if `data/loan_data.csv` doesn't exist.
-
-To use a real dataset instead:
-1. Download a loan eligibility CSV (e.g. the Kaggle "Loan Prediction" dataset).
-2. Make sure it has these columns: `Loan_ID, Gender, Married, Dependents, Education, Self_Employed, ApplicantIncome, CoapplicantIncome, LoanAmount, Loan_Amount_Term, Credit_History, Property_Area, Loan_Status`
-3. Save it as `data/loan_data.csv`, replacing the generated one.
-4. Re-run `python train_model.py`.
-
-## Tech Stack
-
-- **Backend:** Python, Flask
-- **ML:** scikit-learn (Decision Tree, Random Forest, KNN), XGBoost
-- **Data:** Pandas, NumPy
-- **Visualization:** Matplotlib, Seaborn
-- **Frontend:** HTML, CSS, vanilla JavaScript
-
-## Deployment Notes (IBM Cloud / any cloud)
-
-- Set `app.run(debug=False, host='0.0.0.0', port=<PORT>)` in `app.py` for production.
-- Use a WSGI server like `gunicorn` (`pip install gunicorn`) for deployment:
-  ```bash
-  gunicorn app:app
-  ```
-- Ensure `model/smart_lender_model.pkl` is trained and included before deploying, or trigger `/api/train` once after deployment.
-
-## Troubleshooting
-
-| Issue | Fix |
-|---|---|
-| `ModuleNotFoundError: xgboost` | Run `pip install xgboost` or `pip install -r requirements.txt` |
-| Port 5000 already in use | Change `port=5000` to another port in `app.py` |
-| Charts not showing on Train page | Run training at least once; check `static/images/` was created |
-| `python` not recognized | Try `python3` instead, or check your PATH/venv activation |
+Open **`http://127.0.0.1:5000`** in Google Chrome or Microsoft Edge to access the dashboard and run instant candidate evaluations!

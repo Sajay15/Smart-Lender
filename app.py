@@ -1,167 +1,106 @@
-from flask import Flask, render_template, request, jsonify, Response
+from flask import Flask, render_template, request
 import pickle
 import numpy as np
 import pandas as pd
-import io
 import os
 
 app = Flask(__name__)
 
-# Load model if exists
-MODEL_PATH = os.path.join('model', 'smart_lender_model.pkl')
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 
-def load_model():
-    if os.path.exists(MODEL_PATH):
-        with open(MODEL_PATH, 'rb') as f:
-            return pickle.load(f)
-    return None
+def get_path(filename):
+    return os.path.join(BASE_DIR, filename)
 
-model = load_model()
+# Load trained artifacts
+with open(get_path('loan_model.pkl'), 'rb') as f:
+    model = pickle.load(f)
+
+with open(get_path('scaler.pkl'), 'rb') as f:
+    scaler = pickle.load(f)
+
+with open(get_path('feature_cols.pkl'), 'rb') as f:
+    FEATURE_COLS = pickle.load(f)
+
+print(f"Loaded loan model. Features required: {FEATURE_COLS}")
 
 @app.route('/')
-def index():
-    return render_template('index.html')
+def home():
+    # Renders the main dashboard with form, analytics, and overview tabs
+    return render_template('home.html')
 
-@app.route('/predict', methods=['GET'])
-def predict_page():
-    return render_template('predict.html')
-
-@app.route('/api/predict', methods=['POST'])
+@app.route('/predict', methods=['POST'])
 def predict():
-    global model
     try:
-        data = request.get_json()
+        # Extract fields from form
+        gender = int(request.form['gender'])
+        married = int(request.form['married'])
+        dependents = int(request.form['dependents'])
+        education = int(request.form['education'])
+        self_employed = int(request.form['self_employed'])
+        applicant_income = float(request.form['applicant_income'])
+        coapplicant_income = float(request.form['coapplicant_income'])
+        loan_amount_raw = float(request.form['loan_amount'])
+        loan_amount_term = float(request.form['loan_amount_term'])
+        credit_history = float(request.form['credit_history'])
+        property_area = int(request.form['property_area'])
 
-        # Extract and encode features
-        gender = 1 if data.get('gender') == 'Male' else 0
-        married = 1 if data.get('married') == 'Yes' else 0
-        dependents = data.get('dependents', '0')
-        dependents = 3 if dependents == '3+' else int(dependents)
-        education = 1 if data.get('education') == 'Graduate' else 0
-        self_employed = 1 if data.get('self_employed') == 'Yes' else 0
-        applicant_income = float(data.get('applicant_income', 0))
-        coapplicant_income = float(data.get('coapplicant_income', 0))
-        loan_amount = float(data.get('loan_amount', 0))
-        loan_term = float(data.get('loan_term', 360))
-        credit_history = float(data.get('credit_history', 1))
-        property_area = {'Rural': 0, 'Semiurban': 1, 'Urban': 2}.get(data.get('property_area', 'Urban'), 2)
+        # Preprocess LoanAmount (the model was trained on LoanAmount in thousands)
+        loan_amount_thousands = loan_amount_raw / 1000.0
 
-        features = np.array([[gender, married, dependents, education, self_employed,
-                               applicant_income, coapplicant_income, loan_amount,
-                               loan_term, credit_history, property_area]])
-
-        if model is None:
-            model = load_model()
-
-        if model is None:
-            # Fallback: rule-based prediction for demo
-            score = 0
-            if credit_history == 1: score += 40
-            if applicant_income > 3000: score += 20
-            if loan_amount < 200: score += 15
-            if education == 1: score += 10
-            if married == 1: score += 5
-            if coapplicant_income > 0: score += 10
-            approved = score >= 55
-            confidence = min(95, score + 20) if approved else max(20, 100 - score - 20)
-            return jsonify({
-                'approved': approved,
-                'confidence': confidence,
-                'message': 'Loan Approved! ✓' if approved else 'Loan Not Approved',
-                'risk_level': 'Low Risk' if score >= 70 else 'Medium Risk' if score >= 55 else 'High Risk',
-                'model_used': 'Rule-Based (train model first)'
-            })
-
-        prediction = model.predict(features)[0]
-        proba = model.predict_proba(features)[0]
-        confidence = round(max(proba) * 100, 1)
-
-        approved = prediction == 1
-        risk_level = 'Low Risk' if confidence > 80 else 'Medium Risk' if confidence > 60 else 'High Risk'
-
-        return jsonify({
-            'approved': approved,
-            'confidence': confidence,
-            'message': 'Loan Approved! ✓' if approved else 'Loan Not Approved',
-            'risk_level': risk_level,
-            'model_used': 'XGBoost (94.7% Train | 81.1% Test)'
-        })
-
+        # Build feature DataFrame matching model.py column order and names
+        features_dict = {
+            'Gender': [gender],
+            'Married': [married],
+            'Dependents': [dependents],
+            'Education': [education],
+            'Self_Employed': [self_employed],
+            'ApplicantIncome': [applicant_income],
+            'CoapplicantIncome': [coapplicant_income],
+            'LoanAmount': [loan_amount_thousands],
+            'Loan_Amount_Term': [loan_amount_term],
+            'Credit_History': [credit_history],
+            'Property_Area': [property_area]
+        }
+        
+        features_df = pd.DataFrame(features_dict)[FEATURE_COLS]
+        
+        # Scale features
+        features_scaled = scaler.transform(features_df)
+        
+        # Run inference
+        prediction = model.predict(features_scaled)[0]  # 1 = Y (Approved), 0 = N (Rejected)
+        probabilities = model.predict_proba(features_scaled)[0]
+        
+        prob_approved = round(probabilities[1] * 100, 1)
+        prob_rejected = round(probabilities[0] * 100, 1)
+        
+        result = 'APPROVED' if prediction == 1 else 'REJECTED'
+        color = 'green' if prediction == 1 else 'red'
+        
+        # Format values for readability in results page
+        details = {
+            'gender': 'Male' if gender == 1 else 'Female',
+            'married': 'Yes' if married == 1 else 'No',
+            'dependents': '3+' if dependents == 3 else str(dependents),
+            'education': 'Graduate' if education == 1 else 'Not Graduate',
+            'self_employed': 'Yes' if self_employed == 1 else 'No',
+            'applicant_income': f"${applicant_income:,.2f}",
+            'coapplicant_income': f"${coapplicant_income:,.2f}",
+            'loan_amount': f"${loan_amount_raw:,.2f}",
+            'loan_amount_term': f"{int(loan_amount_term)} Months ({int(loan_amount_term/12)} Years)" if loan_amount_term % 12 == 0 else f"{int(loan_amount_term)} Months",
+            'credit_history': 'Meets Guidelines (Good)' if credit_history == 1.0 else 'Does Not Meet Guidelines (Poor)',
+            'property_area': 'Rural' if property_area == 0 else 'Semiurban' if property_area == 1 else 'Urban',
+            'prob_approved': prob_approved,
+            'prob_rejected': prob_rejected
+        }
+        
+        return render_template('result.html', result=result, color=color, details=details)
+        
     except Exception as e:
-        return jsonify({'error': str(e)}), 500
-
-@app.route('/api/batch_predict', methods=['POST'])
-def batch_predict():
-    global model
-    if 'file' not in request.files:
-        return jsonify({'error': 'No file uploaded'}), 400
-    file = request.files['file']
-    if file.filename == '':
-        return jsonify({'error': 'No selected file'}), 400
-    if not file.filename.endswith('.csv'):
-        return jsonify({'error': 'Please upload a CSV file'}), 400
-
-    try:
-        df = pd.read_csv(file)
-        
-        X = pd.DataFrame()
-        X['Gender'] = df.get('Gender', pd.Series(['Male']*len(df))).map({'Male': 1, 'Female': 0}).fillna(1)
-        X['Married'] = df.get('Married', pd.Series(['No']*len(df))).map({'Yes': 1, 'No': 0}).fillna(0)
-        X['Dependents'] = df.get('Dependents', pd.Series(['0']*len(df))).astype(str).replace('3+', '3').replace('nan', '0').astype(float)
-        X['Education'] = df.get('Education', pd.Series(['Graduate']*len(df))).map({'Graduate': 1, 'Not Graduate': 0}).fillna(1)
-        X['Self_Employed'] = df.get('Self_Employed', pd.Series(['No']*len(df))).map({'Yes': 1, 'No': 0}).fillna(0)
-        X['ApplicantIncome'] = pd.to_numeric(df.get('ApplicantIncome', pd.Series([0]*len(df))), errors='coerce').fillna(0)
-        X['CoapplicantIncome'] = pd.to_numeric(df.get('CoapplicantIncome', pd.Series([0]*len(df))), errors='coerce').fillna(0)
-        X['LoanAmount'] = pd.to_numeric(df.get('LoanAmount', pd.Series([0]*len(df))), errors='coerce').fillna(0)
-        X['Loan_Amount_Term'] = pd.to_numeric(df.get('Loan_Amount_Term', pd.Series([360]*len(df))), errors='coerce').fillna(360)
-        X['Credit_History'] = pd.to_numeric(df.get('Credit_History', pd.Series([1]*len(df))), errors='coerce').fillna(1)
-        X['Property_Area'] = df.get('Property_Area', pd.Series(['Urban']*len(df))).map({'Rural': 0, 'Semiurban': 1, 'Urban': 2}).fillna(2)
-        
-        features = X.values
-        
-        if model is None:
-            model = load_model()
-            if model is None:
-                return jsonify({'error': 'Model not trained yet. Please train the model first.'}), 400
-                
-        predictions = model.predict(features)
-        probas = model.predict_proba(features)
-        confidences = np.round(np.max(probas, axis=1) * 100, 1)
-        
-        df['Prediction'] = ['Approved' if p == 1 else 'Rejected' for p in predictions]
-        df['Confidence (%)'] = confidences
-        df['Risk Level'] = ['Low Risk' if c > 80 else 'Medium Risk' if c > 60 else 'High Risk' for c in confidences]
-        
-        output = io.StringIO()
-        df.to_csv(output, index=False)
-        output.seek(0)
-        
-        return Response(
-            output,
-            mimetype='text/csv',
-            headers={'Content-Disposition': 'attachment;filename=batch_predictions.csv'}
+        return (
+            f'<div style="color:red; font-family:sans-serif; padding:2rem; background:#111827; height:100vh;">'
+            f'<h3>Error Processing Underwriting Request</h3><p>{str(e)}</p></div>'
         )
 
-    except Exception as e:
-        return jsonify({'error': str(e)}), 500
-
-@app.route('/train')
-def train_page():
-    return render_template('train.html')
-
-@app.route('/api/train', methods=['POST'])
-def train_model():
-    try:
-        import subprocess
-        result = subprocess.run(['python', 'train_model.py'], capture_output=True, text=True, timeout=120)
-        global model
-        model = load_model()
-        if result.returncode == 0:
-            return jsonify({'success': True, 'message': 'Model trained successfully!', 'output': result.stdout})
-        else:
-            return jsonify({'success': False, 'message': result.stderr})
-    except Exception as e:
-        return jsonify({'success': False, 'message': str(e)})
-
 if __name__ == '__main__':
-    app.run(debug=True, port=5000)
+    app.run(debug=True)

@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Smart Lender: Loan Credibility Underwriting Portal</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+
+    <header>
+        <div class="header-container">
+            <a href="#" class="logo">
+                <i class="fa-solid fa-scale-balanced"></i> SMART LENDER
+            </a>
+            <span class="logo-sub">Loan Eligibility Underwriting Assistant</span>
+        </div>
+    </header>
+
+    <div class="main-container">
+        
+        <div class="hero">
+            <h1>Applicant Credibility Evaluation</h1>
+            <p>Smart Lender is an automated underwriting tool leveraging advanced machine learning classification algorithms to evaluate loan applicants. Predict repayment viability, reduce default risk, and speed up credit decisions.</p>
+        </div>
+
+        <nav class="tabs-navigation">
+            <button class="tab-btn active" onclick="switchTab(event, 'eval-tab')">
+                <i class="fa-solid fa-file-invoice-dollar"></i> Loan Evaluation
+            </button>
+            <button class="tab-btn" onclick="switchTab(event, 'analytics-tab')">
+                <i class="fa-solid fa-chart-pie"></i> Analytics Dashboard
+            </button>
+            <button class="tab-btn" onclick="switchTab(event, 'overview-tab')">
+                <i class="fa-solid fa-circle-info"></i> Project Overview & Scenarios
+            </button>
+        </nav>
+
+        <!-- ── TAB 1: EVALUATION FORM ──────────────────────────────────────── -->
+        <div id="eval-tab" class="tab-content active">
+            <div class="form-card">
+                <h2 class="form-title"><i class="fa-solid fa-sliders"></i> Enter Applicant Profile Parameters</h2>
+                <form action="/predict" method="POST">
+                    <div class="form-grid">
+                        
+                        <div class="form-group">
+                            <label for="gender">Gender</label>
+                            <select name="gender" id="gender" required>
+                                <option value="1">Male</option>
+                                <option value="0">Female</option>
+                            </select>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="married">Marital Status</label>
+                            <select name="married" id="married" required>
+                                <option value="1">Married (Yes)</option>
+                                <option value="0">Not Married (No)</option>
+                            </select>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="dependents">Number of Dependents</label>
+                            <select name="dependents" id="dependents" required>
+                                <option value="0">0 Dependents</option>
+                                <option value="1">1 Dependent</option>
+                                <option value="2">2 Dependents</option>
+                                <option value="3">3+ Dependents</option>
+                            </select>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="education">Education Level</label>
+                            <select name="education" id="education" required>
+                                <option value="1">Graduate</option>
+                                <option value="0">Under Graduate / Not Graduate</option>
+                            </select>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="self_employed">Employment Status</label>
+                            <select name="self_employed" id="self_employed" required>
+                                <option value="0">Salaried / Employed (No)</option>
+                                <option value="1">Self Employed (Yes)</option>
+                            </select>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="credit_history">Credit History Status</label>
+                            <select name="credit_history" id="credit_history" required>
+                                <option value="1.0">Meets Credit Guidelines (Good)</option>
+                                <option value="0.0">Does Not Meet Guidelines (Poor)</option>
+                            </select>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="applicant_income">Monthly Applicant Income (USD)</label>
+                            <input type="number" name="applicant_income" id="applicant_income" placeholder="e.g. 5000" min="0" required>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="coapplicant_income">Monthly Co-applicant Income (USD)</label>
+                            <input type="number" name="coapplicant_income" id="coapplicant_income" placeholder="e.g. 2000 (Enter 0 if none)" min="0" required>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="loan_amount">Requested Loan Amount (USD)</label>
+                            <input type="number" name="loan_amount" id="loan_amount" placeholder="e.g. 150000" min="0" required>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="loan_amount_term">Loan Repayment Term (in Months)</label>
+                            <select name="loan_amount_term" id="loan_amount_term" required>
+                                <option value="360">360 Months (30 Years)</option>
+                                <option value="180">180 Months (15 Years)</option>
+                                <option value="240">240 Months (20 Years)</option>
+                                <option value="120">120 Months (10 Years)</option>
+                                <option value="84">84 Months (7 Years)</option>
+                                <option value="60">60 Months (5 Years)</option>
+                                <option value="36">36 Months (3 Years)</option>
+                                <option value="12">12 Months (1 Year)</option>
+                            </select>
+                        </div>
+
+                        <div class="form-group full-width">
+                            <label for="property_area">Property Location Area</label>
+                            <select name="property_area" id="property_area" required>
+                                <option value="1">Semiurban</option>
+                                <option value="2">Urban</option>
+                                <option value="0">Rural</option>
+                            </select>
+                        </div>
+
+                    </div>
+
+                    <div class="btn-container">
+                        <button type="submit" class="submit-btn">
+                            <i class="fa-solid fa-magnifying-glass-chart"></i> Run Underwriting Evaluation
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- ── TAB 2: ANALYTICS DASHBOARD ───────────────────────────────────── -->
+        <div id="analytics-tab" class="tab-content">
+            <div class="analytics-grid">
+                
+                <div class="chart-card">
+                    <h3>Overall Class Distribution</h3>
+                    <img src="{{ url_for('static', filename='images/loan_status_distribution.png') }}" alt="Loan Status Distribution">
+                </div>
+
+                <div class="chart-card">
+                    <h3>Credit History vs Loan Approval</h3>
+                    <img src="{{ url_for('static', filename='images/credit_history_vs_loan_status.png') }}" alt="Credit History vs Loan Status">
+                </div>
+
+                <div class="chart-card">
+                    <h3>Education Level vs Loan Status</h3>
+                    <img src="{{ url_for('static', filename='images/education_vs_loan_status.png') }}" alt="Education vs Loan Status">
+                </div>
+
+                <div class="chart-card">
+                    <h3>Income vs Loan Amount Plot</h3>
+                    <img src="{{ url_for('static', filename='images/income_vs_loan_amount.png') }}" alt="Income vs Loan Amount">
+                </div>
+
+            </div>
+        </div>
+
+        <!-- ── TAB 3: OVERVIEW & SCENARIOS ──────────────────────────────────── -->
+        <div id="overview-tab" class="tab-content">
+            <div class="overview-card">
+                <h2>System Overview & Architectures</h2>
+                <p>The Smart Lender application processes categorical and numerical inputs to analyze applicants' credibility. We evaluated multiple classification estimators: <strong>Decision Tree, Random Forest, K-Nearest Neighbors (KNN), and XGBoost</strong>. The best-performing ensemble classifier (XGBoost) is saved as a serialized binary and called for real-time predictions.</p>
+                
+                <h3 style="margin-top:2rem; font-size:1.25rem; font-weight:700; color:var(--text-primary);">Underwriting Scenarios</h3>
+                <div class="scenarios-grid">
+                    
+                    <div class="scenario-box">
+                        <h4>Scenario 1: Fast-Track Approval</h4>
+                        <p>A bank credit officer enters the details of a salaried applicant with a good credit history and stable income. The model predicts loan approval with high confidence, allowing the officer to fast-track the application without manual review.</p>
+                    </div>
+
+                    <div class="scenario-box">
+                        <h4>Scenario 2: High-Risk Detection</h4>
+                        <p>An applicant with irregular self-employment income and no credit history submits a loan request. The system flags the application as high-risk based on the trained model, prompting further scrutiny or document verification before proceeding.</p>
+                    </div>
+
+                    <div class="scenario-box">
+                        <h4>Scenario 3: Batch Evaluation</h4>
+                        <p>A financial analyst uses the platform to batch-evaluate multiple applicants during a high-volume period. By relying on the XGBoost model's predictions, the analyst significantly reduces evaluation time while maintaining accuracy and compliance.</p>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <footer>
+        <p>&copy; 2026 Smart Lender Inc. All rights reserved. Deployed on secure Cloud Environment.</p>
+    </footer>
+
+    <script>
+        function switchTab(evt, tabId) {
+            // Hide all tab contents
+            const tabContents = document.getElementsByClassName("tab-content");
+            for (let i = 0; i < tabContents.length; i++) {
+                tabContents[i].classList.remove("active");
+            }
+
+            // Remove active class from all buttons
+            const tabBtns = document.getElementsByClassName("tab-btn");
+            for (let i = 0; i < tabBtns.length; i++) {
+                tabBtns[i].classList.remove("active");
+            }
+
+            // Show current tab content & mark current button active
+            document.getElementById(tabId).classList.add("active");
+            evt.currentTarget.classList.add("active");
+        }
+    </script>
+</body>
+</html>
